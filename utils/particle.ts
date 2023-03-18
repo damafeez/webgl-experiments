@@ -7,14 +7,18 @@ type IParticle = {
   color?: string
 }
 export class Particle {
+  // postion
   x: number
   y: number
-  ax: number
-  ay: number
-  vx: number
-  vy: number
+  // initial position
   ix: number
   iy: number
+  // acceleration
+  ax: number
+  ay: number
+  // velocity
+  vx: number
+  vy: number
 
   radius: number
   color: string
@@ -25,21 +29,14 @@ export class Particle {
   dampFactor: number
 
   constructor({ x, y, radius = 0.5, color = 'gray' }: IParticle) {
-    // position
-    this.x = x
-    this.y = y
+    this.x = this.ix = x
+    this.y = this.iy = y
 
-    // acceleration
     this.ax = 0
     this.ay = 0
 
-    // velocity
     this.vx = 0
     this.vy = 0
-
-    // initial position
-    this.ix = x
-    this.iy = y
 
     this.radius = radius
     this.color = color
@@ -47,34 +44,26 @@ export class Particle {
     this.minDist = randomInRange(100, 200)
     this.pushFactor = randomInRange(0.01, 0.02)
     this.pullFactor = randomInRange(0.002, 0.006)
-    this.dampFactor = randomInRange(0.9, 0.95)
+    this.dampFactor = randomInRange(0.8, 0.95)
   }
 
   update(cursor: { x: number; y: number }) {
-    let dx, dy, dd, distDelta
-    let idxColor
-
-    // pull force
-    dx = this.ix - this.x
-    dy = this.iy - this.y
-    dd = Math.sqrt(dx * dx + dy * dy)
-
-    this.ax = dx * this.pullFactor
-    this.ay = dy * this.pullFactor
-
-    // idxColor = Math.floor(math.mapRange(dd, 0, 200, 0, colors.length - 1, true));
-    // this.color = colors[idxColor];
+    // pull force - we want the particle to return to its initial position
+    // at a speed proportional to its distance away (from initial position)
+    const dxFromInitial = this.ix - this.x
+    const dyFromInitial = this.iy - this.y
+    this.ax = dxFromInitial * this.radius * this.pullFactor
+    this.ay = dyFromInitial * this.radius * this.pullFactor
 
     // push force
-    dx = this.x - cursor.x
-    dy = this.y - cursor.y
-    dd = Math.sqrt(dx * dx + dy * dy)
-
-    distDelta = this.minDist - dd
-
-    if (dd < this.minDist) {
-      this.ax += (dx / dd) * distDelta * this.pushFactor
-      this.ay += (dy / dd) * distDelta * this.pushFactor
+    const dxToCursor = this.x - cursor.x
+    const dyToCursor = this.y - cursor.y
+    // absolute distance to cursor position
+    const distanceToCursor = Math.sqrt(dxToCursor * dxToCursor + dyToCursor * dyToCursor)
+    if (distanceToCursor < this.minDist) {
+      const distDelta = this.minDist - distanceToCursor
+      this.ax += (dxToCursor / distanceToCursor) * distDelta * this.pushFactor
+      this.ay += (dyToCursor / distanceToCursor) * distDelta * this.pushFactor
     }
 
     this.vx += this.ax

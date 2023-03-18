@@ -37,5 +37,16 @@ export const loadImage = (url: string, maxWidth?: number): Promise<HTMLImageElem
   })
 }
 
-export const randomInRange = (from: number, to: number): number =>
-  from + Math.floor(Math.random() * (to - from))
+export const randomInRange = (from: number, to: number): number => {
+  const difference = Math.abs(to - from)
+  const random = Math.random() * difference
+  return from + (Math.floor(difference) === difference ? Math.floor(random) : random)
+}
+
+export const mapRange = (
+  value: number,
+  inMin: number,
+  inMax: number,
+  outMin: number,
+  outMax: number
+) => ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin

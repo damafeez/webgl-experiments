@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
-import { Particle, loadImage, getImageData } from '~~/utils'
+import { Particle, loadImage, getImageData, mapRange } from '~~/utils'
 
 const canvasRef = ref<HTMLCanvasElement>()
 
 watchEffect((onCleanUp) => {
+  // configuration
+  const fps = 30
+  const colorThreshold = 30
+  const imgUrl = '/me.png'
+
   const canvas = canvasRef.value
   const ctx = canvas?.getContext('2d')
   if (!canvas || !ctx) return
@@ -15,8 +20,8 @@ watchEffect((onCleanUp) => {
     y: Infinity,
   }
 
-  const fps = 60
   let animationId: number
+  let timeoutId: NodeJS.Timeout
   const renderLoop = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     particles.forEach((particle) => {
@@ -24,11 +29,10 @@ watchEffect((onCleanUp) => {
       particle.draw(ctx)
     })
 
-    setTimeout(() => {
-      window.requestAnimationFrame(renderLoop)
+    timeoutId = setTimeout(() => {
+      animationId = window.requestAnimationFrame(renderLoop)
     }, 1000 / fps)
   }
-  window.requestAnimationFrame(renderLoop)
 
   const onMouseEnter = (_e: MouseEvent) => {
     canvas.addEventListener('mouseout', onMouseOut, { once: true })
@@ -47,13 +51,13 @@ watchEffect((onCleanUp) => {
   canvas.addEventListener('mousemove', onMouseMove)
   canvas.addEventListener('mouseenter', onMouseEnter)
   ;(async () => {
-    const img = await loadImage('/me.png', 160).catch(() => null)
+    const img = await loadImage(imgUrl, 100).catch(() => null)
     if (!img) return
 
     const aspect = img.width / img.height
     if (aspect > 1) {
       canvas.width = canvas.parentElement?.offsetWidth ?? 0
-      canvas.height = canvas.width * aspect
+      canvas.height = canvas.width / aspect
     } else {
       canvas.height = canvas.parentElement?.offsetHeight ?? 0
       canvas.width = canvas.height * aspect
@@ -64,7 +68,6 @@ watchEffect((onCleanUp) => {
 
     const gapX = canvas.width > img.width ? canvas.width / img.width : 0
 
-    const threshold = 50
     for (let i = 0, x = 0, y = 0; i < imageData.length; i += 4) {
       const r = imageData[i + 0]
       const g = imageData[i + 1]
@@ -73,7 +76,7 @@ watchEffect((onCleanUp) => {
 
       const gray = 0.2 * r + 0.72 * g + 0.07 * b
       const color = `rgba(${gray}, ${gray}, ${gray}, ${a})`
-      const radius = 1.1
+      const radius = mapRange(gray, 0, 255, 0.5, 5)
 
       x += gapX
       // if at the right edge of image
@@ -82,17 +85,21 @@ watchEffect((onCleanUp) => {
         y += gapX
       }
 
-      if (gray > threshold) {
+      if (gray > colorThreshold) {
         const particle = new Particle({ x, y, color, radius })
         particle.draw(ctx)
 
         particles.push(particle)
       }
     }
+
+    animationId = window.requestAnimationFrame(renderLoop)
   })()
 
   onCleanUp(() => {
+    window.clearTimeout(timeoutId)
     window.cancelAnimationFrame(animationId)
+
     canvas.removeEventListener('mousemove', onMouseMove)
     canvas.removeEventListener('mouseenter', onMouseEnter)
   })
