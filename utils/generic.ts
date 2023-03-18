@@ -1,4 +1,4 @@
-export const getImageData = (img: HTMLImageElement): Uint8ClampedArray | undefined => {
+export const getImageData = (img: HTMLImageElement): Uint8ClampedArray => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
 
@@ -7,7 +7,9 @@ export const getImageData = (img: HTMLImageElement): Uint8ClampedArray | undefin
 
   ctx?.drawImage(img, 0, 0)
 
-  return ctx?.getImageData(0, 0, canvas.width, canvas.height).data
+  return (
+    ctx?.getImageData(0, 0, canvas.width, canvas.height).data ?? new Uint8ClampedArray()
+  )
 }
 
 export const loadImage = (url: string, maxWidth?: number): Promise<HTMLImageElement> => {
