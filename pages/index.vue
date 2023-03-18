@@ -7,8 +7,9 @@ const canvasRef = ref<HTMLCanvasElement>()
 watchEffect((onCleanUp) => {
   // configuration
   const fps = 30
-  const colorThreshold = 30
+  const colorThreshold = 25
   const imgUrl = '/me.png'
+  const resolution = 100
 
   const canvas = canvasRef.value
   const ctx = canvas?.getContext('2d')
@@ -51,15 +52,19 @@ watchEffect((onCleanUp) => {
   canvas.addEventListener('mousemove', onMouseMove)
   canvas.addEventListener('mouseenter', onMouseEnter)
   ;(async () => {
-    const img = await loadImage(imgUrl, 100).catch(() => null)
+    const img = await loadImage(imgUrl, resolution).catch(() => null)
     if (!img) return
 
     const aspect = img.width / img.height
-    if (aspect > 1) {
-      canvas.width = canvas.parentElement?.offsetWidth ?? 0
+    const parentWidth = Math.max(canvas.parentElement?.offsetWidth ?? 0, 800)
+    const parentHeight = canvas.parentElement?.offsetHeight ?? 0
+    const parentAspect = parentWidth / parentHeight
+
+    if (aspect >= 1 && parentAspect <= 1) {
+      canvas.width = parentWidth
       canvas.height = canvas.width / aspect
     } else {
-      canvas.height = canvas.parentElement?.offsetHeight ?? 0
+      canvas.height = parentHeight
       canvas.width = canvas.height * aspect
     }
 
@@ -123,5 +128,9 @@ main {
 .canvas-wrapper {
   display: grid;
   place-content: center;
+}
+
+canvas {
+  max-width: 100%;
 }
 </style>
