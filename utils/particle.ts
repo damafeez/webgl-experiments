@@ -1,11 +1,6 @@
+import { noise2D } from 'canvas-sketch-util/random'
 import { randomInRange } from './generic'
 
-type IParticle = {
-  x: number
-  y: number
-  radius?: number
-  color?: string
-}
 export class Particle {
   // postion
   x: number
@@ -25,12 +20,22 @@ export class Particle {
   initialRadius: number
 
   // random
-  minDist: number
+  cursorProximity: number
   pushFactor: number
   pullFactor: number
   dampFactor: number
 
-  constructor({ x, y, radius = 0.5, color = 'gray' }: IParticle) {
+  constructor({
+    x,
+    y,
+    radius = 0.5,
+    color = 'gray',
+  }: {
+    x: number
+    y: number
+    radius?: number
+    color?: string
+  }) {
     this.x = this.initialX = x
     this.y = this.initialY = y
 
@@ -43,7 +48,7 @@ export class Particle {
     this.radius = this.initialRadius = radius
     this.color = color
 
-    this.minDist = randomInRange(100, 200)
+    this.cursorProximity = randomInRange(100, 200)
     this.pushFactor = randomInRange(0.01, 0.02)
     this.pullFactor = randomInRange(0.002, 0.006)
     this.dampFactor = randomInRange(0.8, 0.95)
@@ -62,10 +67,14 @@ export class Particle {
     const dyToCursor = this.y - cursor.y
     // absolute distance to cursor position
     const distanceToCursor = Math.sqrt(dxToCursor * dxToCursor + dyToCursor * dyToCursor)
-    if (distanceToCursor < this.minDist) {
-      const distDelta = this.minDist - distanceToCursor
+    // is within cursor proximity
+    if (distanceToCursor < this.cursorProximity) {
+      const distDelta = this.cursorProximity - distanceToCursor
       this.ax += (dxToCursor / distanceToCursor) * distDelta * this.pushFactor
       this.ay += (dyToCursor / distanceToCursor) * distDelta * this.pushFactor
+    } else {
+      this.x += noise2D(this.x, this.y / this.radius, 0.1, 0.4)
+      this.y += noise2D(this.y, this.x, 0.1, 0.4)
     }
 
     this.vx += this.ax
