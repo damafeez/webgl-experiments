@@ -15,14 +15,12 @@ const cursor = {
   y: Infinity,
 }
 
-const getRenderLoop = (canvas: HTMLCanvasElement, particles: Particle[]) => {
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return [() => undefined, () => undefined]
+const getRenderLoop = (ctx: CanvasRenderingContext2D, particles: Particle[]) => {
   let animationId: number
   let timeoutId: NodeJS.Timeout
 
   const renderLoop = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     particles.forEach((particle) => {
       particle.update(cursor)
       particle.draw(ctx)
@@ -57,11 +55,11 @@ const onMouseMove = (e: MouseEvent) => {
   cursor.y = (e.offsetY / canvas.offsetHeight) * canvas.height
 }
 
-const makeParticles = (img: HTMLImageElement, canvasWidth: number) => {
+const makeParticles = (img: HTMLImageElement, width: number) => {
   const particles: Particle[] = []
   const imageData = getImageData(img)
 
-  const gapX = canvasWidth > img.width ? canvasWidth / img.width : 0
+  const gapX = width > img.width ? width / img.width : 0
 
   for (let i = 0, x = 0, y = 0; i < imageData.length; i += 4) {
     const r = imageData[i + 0]
@@ -113,7 +111,7 @@ watchEffect(async (onCleanUp) => {
   const particles = makeParticles(img, canvas.width)
   particles.forEach((particle) => particle.draw(ctx))
 
-  const [renderLoop, stopRenderLoop] = getRenderLoop(canvas, particles)
+  const [renderLoop, stopRenderLoop] = getRenderLoop(ctx, particles)
 
   window.requestAnimationFrame(renderLoop)
   canvas.addEventListener('mousemove', onMouseMove)
