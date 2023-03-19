@@ -31,7 +31,9 @@ export const loadImage = (url: string, maxWidth?: number): Promise<HTMLImageElem
 
         const el = document.createElement('img')
         el.src = canvas.toDataURL('image/png')
-        resolve(el)
+
+        el.onerror = reject
+        el.onload = () => resolve(el)
       } else {
         resolve(img)
       }
