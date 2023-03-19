@@ -45,28 +45,25 @@ export const makeParticles = (
   const particles: Particle[] = []
   const imageData = getImageData(img)
 
-  const gapX = width > img.width ? width / img.width : 0
+  const gap = width > img.width ? width / img.width : 0
 
-  for (let i = 0, x = 0, y = 0; i < imageData.length; i += 4) {
-    const r = imageData[i + 0]
-    const g = imageData[i + 1]
-    const b = imageData[i + 2]
-    const a = imageData[i + 3]
+  for (let y = 0; y < img.height; y++) {
+    for (let x = 0; x < img.width; x++) {
+      const i = (y * img.width + x) * 4
 
-    const gray = 0.2 * r + 0.72 * g + 0.07 * b
-    const color = `rgba(${gray}, ${gray}, ${gray}, ${a})`
-    const radius = mapRange(gray, 0, 255, 0.5, 5)
+      const r = imageData[i + 0]
+      const g = imageData[i + 1]
+      const b = imageData[i + 2]
+      const a = imageData[i + 3]
 
-    x += gapX
-    // if at the right edge of image
-    if ((i / 4) % img.width === 0) {
-      x = 0
-      y += gapX
-    }
+      const gray = 0.2 * r + 0.72 * g + 0.07 * b
+      const color = `rgba(${gray}, ${gray}, ${gray}, ${a})`
+      const radius = mapRange(gray, 0, 255, 0.5, 5)
 
-    if (gray > colorThreshold) {
-      const particle = new Particle({ x, y, color, radius })
-      particles.push(particle)
+      if (gray > colorThreshold) {
+        const particle = new Particle({ x: x * gap, y: y * gap, color, radius })
+        particles.push(particle)
+      }
     }
   }
 

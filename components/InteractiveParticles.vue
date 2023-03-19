@@ -21,7 +21,7 @@ watchEffect(async (onCleanUp) => {
   const ctx = canvas?.getContext('2d')
   if (!canvas || !ctx) return
 
-  const img = await loadImage(imgUrl, resolution).catch(() => null)
+  const img = await loadImage(imgUrl, resolution).catch(console.error)
   if (!img) return
 
   const aspect = img.width / img.height
