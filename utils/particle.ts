@@ -1,4 +1,4 @@
-import { noise2D } from 'canvas-sketch-util/random'
+import random from 'canvas-sketch-util/random'
 import { randomInRange } from './generic'
 
 export class Particle {
@@ -73,8 +73,8 @@ export class Particle {
       this.ax += (dxToCursor / distanceToCursor) * distDelta * this.pushFactor
       this.ay += (dyToCursor / distanceToCursor) * distDelta * this.pushFactor
     } else {
-      this.x += noise2D(this.x, this.y / this.radius, 0.1, 0.4)
-      this.y += noise2D(this.y, this.x, 0.1, 0.4)
+      this.x += random.noise2D(this.x, this.y / this.radius, 0.1, 0.4)
+      this.y += random.noise2D(this.y, this.x, 0.1, 0.4)
     }
 
     this.vx += this.ax
