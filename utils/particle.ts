@@ -11,8 +11,8 @@ export class Particle {
   x: number
   y: number
   // initial position
-  ix: number
-  iy: number
+  initialX: number
+  initialY: number
   // acceleration
   ax: number
   ay: number
@@ -20,17 +20,19 @@ export class Particle {
   vx: number
   vy: number
 
-  radius: number
   color: string
+  radius: number
+  initialRadius: number
 
+  // random
   minDist: number
   pushFactor: number
   pullFactor: number
   dampFactor: number
 
   constructor({ x, y, radius = 0.5, color = 'gray' }: IParticle) {
-    this.x = this.ix = x
-    this.y = this.iy = y
+    this.x = this.initialX = x
+    this.y = this.initialY = y
 
     this.ax = 0
     this.ay = 0
@@ -38,7 +40,7 @@ export class Particle {
     this.vx = 0
     this.vy = 0
 
-    this.radius = radius
+    this.radius = this.initialRadius = radius
     this.color = color
 
     this.minDist = randomInRange(100, 200)
@@ -50,8 +52,8 @@ export class Particle {
   update(cursor: { x: number; y: number }) {
     // pull force - we want the particle to return to its initial position
     // at a speed proportional to its distance away (from initial position)
-    const dxFromInitial = this.ix - this.x
-    const dyFromInitial = this.iy - this.y
+    const dxFromInitial = this.initialX - this.x
+    const dyFromInitial = this.initialY - this.y
     this.ax = dxFromInitial * this.radius * this.pullFactor
     this.ay = dyFromInitial * this.radius * this.pullFactor
 
@@ -74,6 +76,8 @@ export class Particle {
 
     this.x += this.vx
     this.y += this.vy
+
+    this.radius = Math.abs(this.initialRadius + (this.vx + this.vy) / 5)
   }
 
   draw(ctx: CanvasRenderingContext2D) {
