@@ -3,14 +3,5 @@ import InteractiveParticles from '../components/InteractiveParticles.vue'
 </script>
 
 <template>
-  <main class="container">
-    <InteractiveParticles />
-  </main>
+  <InteractiveParticles />
 </template>
-
-<style scoped>
-main {
-  min-height: 100vh;
-  display: grid;
-}
-</style>

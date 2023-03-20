@@ -74,3 +74,7 @@ export const mapRange = (
   outMin: number,
   outMax: number
 ) => ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
+
+export const notifyError = (error: any, message = 'An error occoured: ') => {
+  window.alert(message + error)
+}

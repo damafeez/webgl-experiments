@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
 import { makeParticles } from './utils/interactiveParticles'
-import { loadImage, getRenderLoop } from '~~/utils'
+import { loadImage, getRenderLoop, notifyError } from '~~/utils'
 
 const canvasRef = ref<HTMLCanvasElement>()
 
@@ -21,7 +21,9 @@ watchEffect(async (onCleanUp) => {
   const ctx = canvas?.getContext('2d')
   if (!canvas || !ctx) return
 
-  const img = await loadImage(imgUrl, resolution).catch(console.error)
+  const img = await loadImage(imgUrl, resolution).catch((e) =>
+    notifyError(e, 'Error loading image: ')
+  )
   if (!img) return
 
   const aspect = img.width / img.height
