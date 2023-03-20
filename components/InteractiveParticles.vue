@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
-import { makeParticles } from './utils/interactiveParticles'
-import { loadImage, getRenderLoop, notifyError } from '~~/utils'
+import { loadImage, getRenderLoop, notifyError, getParticlesFromImage } from '~~/utils'
 
 const canvasRef = ref<HTMLCanvasElement>()
 
@@ -39,7 +38,7 @@ watchEffect(async (onCleanUp) => {
     canvas.width = canvas.height * aspect
   }
 
-  const particles = makeParticles(img, canvas.width, colorThreshold)
+  const particles = getParticlesFromImage(img, canvas.width, colorThreshold)
 
   const [startAnimation, stopAnimation] = getRenderLoop(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
