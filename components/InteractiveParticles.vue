@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
-import { makeParticles, getRenderLoop } from './utils/interactiveParticles'
-import { loadImage } from '~~/utils'
+import { makeParticles } from './utils/interactiveParticles'
+import { loadImage, getRenderLoop } from '~~/utils'
 
 const canvasRef = ref<HTMLCanvasElement>()
 
@@ -38,16 +38,21 @@ watchEffect(async (onCleanUp) => {
   }
 
   const particles = makeParticles(img, canvas.width, colorThreshold)
-  particles.forEach((particle) => particle.draw(ctx))
 
-  const [renderLoop, stopRenderLoop] = getRenderLoop({ ctx, particles, cursor, fps })
+  const [startAnimation, stopAnimation] = getRenderLoop(() => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    particles.forEach((particle) => {
+      particle.update(cursor)
+      particle.draw(ctx)
+    })
+  }, fps)
 
-  window.requestAnimationFrame(renderLoop)
+  startAnimation()
   canvas.addEventListener('mousemove', onMouseMove)
   canvas.addEventListener('mouseenter', onMouseEnter)
 
   onCleanUp(() => {
-    stopRenderLoop()
+    stopAnimation()
     canvas.removeEventListener('mousemove', onMouseMove)
     canvas.removeEventListener('mouseenter', onMouseEnter)
   })

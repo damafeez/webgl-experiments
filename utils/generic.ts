@@ -41,6 +41,26 @@ export const loadImage = (url: string, maxWidth?: number): Promise<HTMLImageElem
   })
 }
 
+export const getRenderLoop = (func: () => void, fps = 40) => {
+  let animationId: number
+  let timeoutId: NodeJS.Timeout
+
+  const renderLoop = () => {
+    func()
+
+    timeoutId = setTimeout(() => {
+      animationId = window.requestAnimationFrame(renderLoop)
+    }, 1000 / fps)
+  }
+
+  const stopRenderLoop = () => {
+    window.clearTimeout(timeoutId)
+    window.cancelAnimationFrame(animationId)
+  }
+
+  return [renderLoop, stopRenderLoop]
+}
+
 export const randomInRange = (from: number, to: number): number => {
   const difference = Math.abs(to - from)
   const random = Math.random() * difference

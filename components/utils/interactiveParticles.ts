@@ -1,42 +1,5 @@
 import { Particle, getImageData, mapRange } from '~~/utils'
 
-export const getRenderLoop = ({
-  ctx,
-  particles,
-  cursor,
-  fps = 40,
-}: {
-  ctx: CanvasRenderingContext2D
-  particles: Particle[]
-  fps: number
-  cursor: {
-    x: number
-    y: number
-  }
-}) => {
-  let animationId: number
-  let timeoutId: NodeJS.Timeout
-
-  const renderLoop = () => {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    particles.forEach((particle) => {
-      particle.update(cursor)
-      particle.draw(ctx)
-    })
-
-    timeoutId = setTimeout(() => {
-      animationId = window.requestAnimationFrame(renderLoop)
-    }, 1000 / fps)
-  }
-
-  const stopRenderLoop = () => {
-    window.clearTimeout(timeoutId)
-    window.cancelAnimationFrame(animationId)
-  }
-
-  return [renderLoop, stopRenderLoop]
-}
-
 export const makeParticles = (
   img: HTMLImageElement,
   width: number,
